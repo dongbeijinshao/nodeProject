@@ -1,0 +1,10 @@
+// 为了解决vscode警告
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+        "@/*": ["src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

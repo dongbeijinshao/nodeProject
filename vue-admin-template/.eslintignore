@@ -1,0 +1,5 @@
+# 作用: eslint 忽略文件
+build/*.js
+src/assets
+public
+dist
