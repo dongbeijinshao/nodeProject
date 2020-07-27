@@ -15,6 +15,8 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 // api版本 v1
 var apiVersion_1 = require('./api/v1/user')
+// token 认证
+var JwtUtil = require('./public/javascripts/jwt');
 var app = express();
 
 // view engine setup
@@ -37,8 +39,24 @@ app.all("*", function (req, res, next) {
       next();
 });
 
-// 载入中间件
-app.use(logger('dev'));
+// 载入中间件,登录拦截
+app.use((req, res, next) => {
+   // 把登陆和注册请求去掉了，其他的多有请求都需要进行token校验 
+   console.log(req.url != '/api/v1/user/login' && req.url != '/api/v1/user/reg')
+   if (req.url != '/api/v1/user/login' && req.url != '/api/v1/user/reg') {
+    const token = req.headers['x-token'];
+    let jwt = new JwtUtil(token);
+    let result = jwt.verifyToken();
+    if (result == 'err') {
+        console.log(result);
+        res.send({status: 403, msg: '登录已过期,请重新登录'});
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

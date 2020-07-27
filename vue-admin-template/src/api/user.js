@@ -17,10 +17,11 @@ export function login(data) {
   })
 }
 
-export function getInfo(token) {
+export function getInfo(params=null) {
   return request({
     url: '/user/info',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 

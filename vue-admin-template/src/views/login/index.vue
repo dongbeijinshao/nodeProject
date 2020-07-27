@@ -164,7 +164,6 @@ export default {
           this.loading = true
           if (this.selectType) { // 登录
             this.$store.dispatch('user/login', this.loginForm).then(() => {
-              console.log('hahahahah---->')
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
             }).catch(() => {

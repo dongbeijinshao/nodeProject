@@ -22,12 +22,18 @@ var utils = require('../public/javascripts/utils')
 // 使用连接池，提升性能
 var pool  = mysql.createPool(_.extend({}, dbconf.mysql));
 
-var tokenObj = require('./config/jwt');
-          
+// token 认证
+var JwtUtil = require('../public/javascripts/jwt');
+
+// 抛出异常
+var createError = require('http-errors');
 
 module.exports = {
-    add: function (param, res, next) {
-        let { username, password, email, sex, birthday} = param
+    add: function (req, res, next) { // 新增一个用户
+        let { username, password, email, sex, birthday} = req.body
+        if (!username || !password) {
+            return res.status(404).send(next(createError(404, '必填项未填写完整')));
+        }
         //对密码加密
         const md5 = crypto.createHash('md5'),
         md5password = md5.update(password).digest('hex');
@@ -62,7 +68,7 @@ module.exports = {
                         res.json(info)
                     } else {
                         let hash = utils.hash()
-                        connection.query(sql.insert, [hash, username, md5password, email, sex, birthday], function(err, res2) {
+                        connection.query(sql.insert, [hash, username, md5password, email, sex, birthday], (err, res2) =>{
                             if(res2) {
                                 info = {
                                     code: 200,
@@ -81,8 +87,8 @@ module.exports = {
             console.log('连接失败', err);
         }
     },
-    queryUserPwd: function (param, res) {
-        let { username, password } = param;
+    queryUserPwd: function (req, res, next) { // 给登录用户新增token
+        let { username, password } = req.body;
         const md5 = crypto.createHash('md5'),
         md5password = md5.update(password).digest('hex');
         let promise = new Promise(function(resolve, reject){
@@ -104,14 +110,14 @@ module.exports = {
         promise.then((result)=> {
             let info;
             if(result.length > 0) {
-                let authToken = new tokenObj();
-                let token = authToken.createToken(result[0]['uid'], 60 * 15);
+                let uid = result[0]['uid']
+                let jwt = new JwtUtil({uid});
+                let token = jwt.generateToken();
                 info = {
                     code: 200,
                     msg: '登录成功',
                     data: { token }
                 };
-                console.log('1111', token)
             } else {
                 info = {
                     code: '1',
@@ -120,70 +126,36 @@ module.exports = {
             }
             res.json(info)
         }), (err) => {
-            console.log('err--->', err)
         }
     },
-    delete: function(param, res, next) {
+    queryById: function(req, res, next) { // 通过id查用户详情
+        const token = req.body.token || req.query.token || req.headers['x-token'];
+        let jwt = new JwtUtil(token);
+        const result = jwt.verifyToken();
+        let uid = result.uid;
         pool.getConnection(function(err, connection) {
-            var id = +req.query.id;
-            connection.query(sql.delete, id, function(err, result) {
-                if (result.affectedRows > 0) {
-                    result = 'delete';
-                }
-                json(res, result);
-                connection.release();
-            });
-        });
-    },
-    update: function(req, res, next) {
-        var param = req.body;
-        if (param.name == null || param.age == null || param.id == null) {
-            json(res, undefined);
-            return;
-        }
-        pool.getConnection(function(err, connection) {
-            connection.query(sql.update, [param.name, param.age, +param.id], function(err, result) {
-                if (result.affectedRows > 0) {
-                    result = 'update'
+            connection.query(sql.queryById, [uid], (err, result) => {
+                result = JSON.parse(JSON.stringify(result))
+                let info;
+                if (err) {
+                    console.log(err)
                 } else {
-                    result = undefined;
-                }
-                json(res, result);
-                connection.release();
-            });
-        });
-    },
-    queryById: function(req, res, next) {
-        var id = +req.query.id;
-        pool.getConnection(function(err, connection) {
-            connection.query(sql.queryById, id, function(err, result) {
-                if (result != '') {
-                    var _result = result;
-                    result = {
-                        result: 'select',
-                        data: _result
+                    console.log('result', result)
+                    if (result.length > 0) {
+                        info = {
+                            code: 200,
+                            msg: '用户详情查询成功',
+                            data: result[0]
+                        }
+                    } else {
+                        info = {
+                            code: 404,
+                            msg: '找不到该用户详情',
+                        }
                     }
-                } else {
-                    result = undefined;
+                    console.log('info--->', info)
+                    res.json(info);
                 }
-                json(res, result);
-                connection.release();
-            });
-        });
-    },
-    queryAll: function(req, res, next) {
-        pool.getConnection(function(err, connection) {
-            connection.query(sql.queryAll, function(err, result) {
-                if (result != '') {
-                    var _result = result;
-                    result = {
-                        result: 'selectall',
-                        data: _result
-                    }
-                } else {
-                    result = undefined;
-                }
-                json(res, result);
                 connection.release();
             });
         });
