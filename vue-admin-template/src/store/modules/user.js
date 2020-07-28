@@ -61,7 +61,7 @@ const actions = {
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
-        const { username, email, sex, avatar, birthday} = data
+        const { username, email, sex, avatar, birthday } = data
         commit('SET_NAME', username)
         commit('SET_EMAIL', email)
         commit('SET_SEX', sex)
