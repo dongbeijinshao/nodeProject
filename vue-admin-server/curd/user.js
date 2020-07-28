@@ -29,7 +29,7 @@ var JwtUtil = require('../public/javascripts/jwt');
 var createError = require('http-errors');
 
 module.exports = {
-    add: function (req, res, next) { // 新增一个用户
+    add: (req, res, next) => { // 新增一个用户
         let { username, password, email, sex, birthday} = req.body
         if (!username || !password) {
             return res.status(404).send(next(createError(404, '必填项未填写完整')));
@@ -87,7 +87,7 @@ module.exports = {
             console.log('连接失败', err);
         }
     },
-    queryUserPwd: function (req, res, next) { // 给登录用户新增token
+    login: (req, res, next) => { // 给登录用户新增token
         let { username, password } = req.body;
         const md5 = crypto.createHash('md5'),
         md5password = md5.update(password).digest('hex');
@@ -128,7 +128,7 @@ module.exports = {
         }), (err) => {
         }
     },
-    queryById: function(req, res, next) { // 通过id查用户详情
+    userInfo: (req, res, next) => { // 通过id查用户详情
         const token = req.body.token || req.query.token || req.headers['x-token'];
         let jwt = new JwtUtil(token);
         const result = jwt.verifyToken();
@@ -140,7 +140,6 @@ module.exports = {
                 if (err) {
                     console.log(err)
                 } else {
-                    console.log('result', result)
                     if (result.length > 0) {
                         info = {
                             code: 200,
@@ -153,11 +152,16 @@ module.exports = {
                             msg: '找不到该用户详情',
                         }
                     }
-                    console.log('info--->', info)
                     res.json(info);
                 }
                 connection.release();
             });
         });
+    },
+    logout: (req, res, next) => { // 拦截器已经判断,token有效性，直接返回
+       res.json({
+           code: 200,
+           msg: '用户退出成功'
+       })
     }
 }

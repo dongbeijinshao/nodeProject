@@ -18,29 +18,23 @@ var curdUser = require('../../curd/user');
  * 用户登录 
  */
 router.post('/login', (req, res, next) => {
-    curdUser.queryUserPwd(req, res, next)
+    curdUser.login(req, res, next)
 });
 
 /** 
  *  用户查询详情
  */
 router.get('/info', (req, res, next) => {
-    console.log('info')
-   curdUser.queryById(req, res, next)
+   curdUser.userInfo(req, res, next)
 })
 
-router.get('/test', (req, res, next) => {
-    console.log(req, res);
-    res.json({
-        code: 200,
-        data: {
-            a:'hello',
-            b:'world'
-        },
-        msg: '接口调取成功'
+/** 
+ *  用户退出 
+ */
 
-    })
-})
+router.post('/logout', (req, res, next) => {
+    curdUser.logout(req, res, next)
+ })
 
 module.exports = router;
 

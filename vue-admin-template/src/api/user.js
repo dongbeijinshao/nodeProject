@@ -9,6 +9,7 @@ export function registered(data) {
   })
 }
 
+// 用户登录
 export function login(data) {
   return request({
     url: '/user/login',
@@ -17,6 +18,7 @@ export function login(data) {
   })
 }
 
+// 获取用户详情
 export function getInfo(params=null) {
   return request({
     url: '/user/info',
@@ -25,9 +27,10 @@ export function getInfo(params=null) {
   })
 }
 
-// export function logout() {
-//   return request({
-//     url: '/vue-admin-template/user/logout',
-//     method: 'post'
-//   })
-// }
+// 退出登录
+export function logout() {
+  return request({
+    url: '/user/logout',
+    method: 'post'
+  })
+}

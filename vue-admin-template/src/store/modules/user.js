@@ -22,8 +22,17 @@ const mutations = {
   SET_NAME: (state, name) => {
     state.name = name
   },
+  SET_EMAIL: (state, email) => {
+    state.email = email
+  },
+  SET_SEX: (state, sex) => {
+    state.sex = sex
+  },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_BIRTHDAY: (state, birthday) => {
+    state.birthday = birthday
   }
 }
 
@@ -47,17 +56,17 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo().then(response => {
-        console.log('userinfo--->', response)
         const { data } = response
 
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
-
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
+        const { username, email, sex, avatar, birthday} = data
+        commit('SET_NAME', username)
+        commit('SET_EMAIL', email)
+        commit('SET_SEX', sex)
         commit('SET_AVATAR', avatar)
+        commit('SET_BIRTHDAY', birthday)
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -68,7 +77,7 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
+      logout().then(() => {
         removeToken() // must remove  token  first
         resetRouter()
         commit('RESET_STATE')
