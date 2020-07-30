@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+// 挂载属性
 Vue.use(Router)
 
 /* Layout */
@@ -51,7 +52,7 @@ export const constantRoutes = [
       path: 'dashboard',
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      meta: { title: '首页', icon: 'dashboard' }
     }]
   },
 
@@ -164,6 +165,7 @@ export const constantRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
+// 创建路由对象，并配置规则
 const createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),

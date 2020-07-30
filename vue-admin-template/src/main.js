@@ -35,6 +35,7 @@ Vue.use(ElementUI, { locale })
 
 Vue.config.productionTip = false
 
+// vue启动，这个vue项目开始启动
 new Vue({
   el: '#app',
   router,
