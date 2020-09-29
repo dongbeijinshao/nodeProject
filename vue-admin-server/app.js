@@ -1,3 +1,11 @@
+/*
+ * @Author: 王进
+ * @Date: 2020-07-17 17:26:01
+ * @LastEditTime: 2020-09-29 19:20:32
+ * @LastEditors: Please set LastEditors
+ * @Description: main
+ * @FilePath: /nodeProject/vue-admin-server/app.js
+ */
 var createError = require('http-errors');
 
 var express = require('express'); // 加载express模块
